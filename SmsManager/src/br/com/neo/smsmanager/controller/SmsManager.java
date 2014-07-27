@@ -7,11 +7,14 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONObject;
 
 import br.com.mylocation.bean.message.Command;
 import br.com.mylocation.bean.message.command.PacoteSms;
@@ -34,32 +37,43 @@ public class SmsManager extends HttpServlet implements Observer {
 		super();
 	}
 
+	public void init(ServletConfig config) throws ServletException {
+		controllerClient = ControllerClient.getInstance();
+	}
+	
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		controllerClient = ControllerClient.getInstance();
 		String phone = request.getParameter("phone");
 		String sms = request.getParameter("sms");
 		
-//		String propaganda = "\n Sms enviado pelo bob server :-P";
+		String propaganda = "\n Sms enviado pelo bob server :-P";
 		
-//		sms += propaganda;
+		sms += propaganda;
 		
 		Map<SocketChannel, Client> celularesDeEnvio = controllerClient.getClients();
 
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		PrintWriter out = response.getWriter();
+		JSONObject resposta = new JSONObject();
+		resposta.put("status", "OK");
+		out.print(resposta.toString());		
 		if (celularesDeEnvio.isEmpty()) {
-			out.print("Não tem celular conectado no servidor para poder enviar o sms, ;-P");
+			//out.print("Não tem celular conectado no servidor para poder enviar o sms, ;-P");			
 			out.close();
 		} else {
 			Client celular = null;
 			// pega só o primeiro por enquanto pra enviar o sms
 			// quando tiver muitos envios sera utilizado mais celulares para o
 			// envio
-			for (Map.Entry<SocketChannel, Client> entry : celularesDeEnvio
-					.entrySet()) {
+			for (Map.Entry<SocketChannel, Client> entry : celularesDeEnvio.entrySet()) {
 				celular = entry.getValue();
 				break;
 			}
@@ -69,7 +83,7 @@ public class SmsManager extends HttpServlet implements Observer {
 			command.setData(pacoteSms);
 			celular.sendMessage(command);
 
-			out.print("Sms enviado ...");
+			//out.print("Sms enviado ...");
 			out.close();
 		}
 	}
