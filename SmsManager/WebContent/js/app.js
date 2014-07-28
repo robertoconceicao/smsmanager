@@ -15,10 +15,10 @@ angular.module('myApp', ['ajoslin.promise-tracker'])
 
       // Default values for the request.
       $scope.progress = promiseTracker('progress');
+      
       var config = {
         params : {
-          'callback' : 'JSON_CALLBACK',
-          'from' : $scope.from,
+          'de' : $scope.de,
           'phone' : $scope.phone,
           'sms' : $scope.sms          
         },
@@ -28,10 +28,22 @@ angular.module('myApp', ['ajoslin.promise-tracker'])
       // Perform JSONP request.
 //      $http.jsonp('response.json', config)
 //      $http.get('SmsManager', config)
-      $http.get('http://localhost:8080/SmsManager/SmsManager', config)
-        .success(function(data, status, headers, config) {
+//      $http.get('http://192.168.0.4:8080/SmsManager/SmsManager', config)
+//      $http({ method: "post",
+//    	  url: "http://192.168.0.4:8080/SmsManager/SmsManager",
+//    	  params: {    		 
+//    		  de : $scope.de,
+//              phone : $scope.phone,
+//              sms : $scope.sms
+//    	  },
+//    	  data: {
+//    		  teste: "teste de data"
+//    	  }
+//      })
+      $http.get('http://192.168.0.4:8080/SmsManager/SmsManager', config)
+      .success(function(data, status, headers, config) {
           if (data.status == 'OK') {
-            $scope.from = null;
+            $scope.de = null;
             $scope.phone = null;
             $scope.sms = null;
             $scope.messages = 'Sms enviado com sucesso!';

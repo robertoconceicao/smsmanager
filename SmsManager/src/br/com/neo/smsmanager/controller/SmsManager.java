@@ -45,13 +45,18 @@ public class SmsManager extends HttpServlet implements Observer {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
+	@SuppressWarnings("unchecked")
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String de = "";
+		if(request.getParameter("de") !=null){
+			de = request.getParameter("de");
+		}
 		String phone = request.getParameter("phone");
 		String sms = request.getParameter("sms");
 		
-		String propaganda = "\n Sms enviado pelo bob server :-P";
+		//String propaganda = "\n Sms enviado pelo bob server :-P";
 		
-		sms += propaganda;
+		//sms += propaganda;
 		
 		Map<SocketChannel, Client> celularesDeEnvio = controllerClient.getClients();
 
@@ -61,10 +66,30 @@ public class SmsManager extends HttpServlet implements Observer {
 			e.printStackTrace();
 		}
 		
+		// Get client's IP address
+        String ipAddress = request.getHeader("x-forwarded-for");
+        if (ipAddress == null) {
+            ipAddress = request.getRemoteAddr();
+        }	
+		
 		PrintWriter out = response.getWriter();
+		
+		//if the client origin is found in our list then give access 
+		//if you don't want to check for origin and want to allow access
+		//to all incoming request then change the line to this
+		//response.setHeader("Access-Control-Allow-Origin", clientOrigin);
+		
+		response.setHeader("Access-Control-Allow-Origin", "*");
+
 		JSONObject resposta = new JSONObject();
 		resposta.put("status", "OK");
-		out.print(resposta.toString());		
+		resposta.put("teste","testando resposta");
+		resposta.put("de",de);
+		resposta.put("phone",phone);
+		resposta.put("sms",sms);
+		
+		out.print(resposta.toString());
+		
 		if (celularesDeEnvio.isEmpty()) {
 			//out.print("Não tem celular conectado no servidor para poder enviar o sms, ;-P");			
 			out.close();
